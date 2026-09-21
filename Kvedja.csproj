@@ -53,6 +53,13 @@
     -->
     <Reference Include="assembly_valheim"><HintPath>$(ManagedDir)\assembly_valheim.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="assembly_utils"><HintPath>$(ManagedDir)\assembly_utils.dll</HintPath><Private>false</Private></Reference>
+    <!-- HttpClient. The copy beside the game rather than the framework's, so this builds the
+         same way Crier does and against the same assembly the game process actually loads. -->
+    <Reference Include="System.Net.Http"><HintPath>$(ManagedDir)\System.Net.Http.dll</HintPath><Private>false</Private></Reference>
+    <!-- Not used by a line of this mod, and not optional. Terminal.AddString has a sibling
+         overload taking a PlatformUserID, and the compiler has to know that type to choose
+         between them - so the reference is needed to call the one that does not use it. -->
+    <Reference Include="Splatform"><HintPath>$(ManagedDir)\Splatform.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine"><HintPath>$(ManagedDir)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="BepInEx"><HintPath>$(BepInExCore)\BepInEx.dll</HintPath><Private>false</Private></Reference>

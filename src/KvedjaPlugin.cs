@@ -8,15 +8,27 @@ using HarmonyLib;
 namespace Kvedja
 {
     /// <summary>
-    /// Kvedja. One sentence saying what the mod does, then a paragraph saying why it is
-    /// worth having - the design argument, not the feature list. That paragraph is the thing
-    /// future-you reads first.
+    /// Kvedja says a line in the chat window when you log in, read from the Longhouse site.
     ///
-    /// Say here whether the mod is client-side, and say it in terms of where the work
-    /// happens rather than by habit. "Client-side" means every effect is computed by the
-    /// owning client off state it already has. The moment a decision reads another player's
-    /// progress, writes a shared ZDO, or registers a prefab, it is not client-side any more
-    /// and Requirement.Everyone below is load-bearing.
+    /// A *kveðja* is a greeting. The reason for it is not the greeting: it is that there is a
+    /// board on the site where players vote on what a mod should do next, and file bugs, and
+    /// almost nobody knows it is there. A link in a README is read once, by the person
+    /// installing, months before they have an opinion worth casting. A pinned Discord message
+    /// is read by the people already in Discord. The moment somebody is actually in the game,
+    /// having just been annoyed by something or having just thought of something, is the
+    /// moment the address is worth having in front of them, and the chat window is where they
+    /// are already looking.
+    ///
+    /// The text lives on the site rather than in this DLL, which is the whole design. It is
+    /// changed in one place, with no update to install and no server to restart, and because
+    /// the client fetches it directly it arrives in singleplayer and on any server, including
+    /// while Longhouse itself is down.
+    ///
+    /// Client-side, and it has to be. A server cannot put a line in the chat window at all -
+    /// the routed ChatMessage path ends in a lookup of the sender among the connected players
+    /// and a dedicated server is not one of them. Crier spent two versions on that before the
+    /// identity turned out to be the wrong thing to fix; see crier/src/Announce.cs, and see
+    /// Motd for the overload that does work and why it can only be called here.
     ///
     /// There is deliberately no BepInProcess attribute. A dedicated server runs
     /// valheim_server.exe, and Core's gate only refuses on the server side of RPC_PeerInfo -
@@ -106,25 +118,27 @@ namespace Kvedja
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void RegisterWithCore()
         {
-            // Requirement.Everyone or Requirement.HostOnly, and the choice is not a matter of
-            // taste. Everyone for anything that registers a prefab or changes item data,
-            // whether it looks networked or not: a client that cannot resolve a prefab hash
-            // does not fail loudly, ZNetScene discards the ZDO as junk and the thing a player
-            // built is simply gone. HostOnly only when a client without the mod is genuinely
-            // unaffected.
-            Suite.Register(PluginGuid, PluginName, PluginVersion, Config, Requirement.Everyone);
+            // HostOnly, and it is the whole of what this mod asks of a server: nothing. It
+            // registers no prefab, writes no ZDO and changes no item - it reads a web page and
+            // writes into its own chat log - so a client without it is genuinely unaffected
+            // and simply hears nothing. Core honours that in both directions, which is the
+            // half that had to be fixed for Skaft: a server without Kvedja still lets in a
+            // client that has it, which matters here because the message is not the server's.
+            Suite.Register(PluginGuid, PluginName, PluginVersion, Config, Requirement.HostOnly);
 
-            // Registering already absorbs the whole config file, so this is a formality now.
-            // It is still worth writing: naming an entry here is saying out loud that the
-            // host decides it. Keybinds are excluded by Core itself - a host taking away
-            // someone's keys for the evening is the kind of sync that gets a mod uninstalled.
-            Suite.Sync(KvedjaConfig.Enabled);
-
-            // If the mod reads a data file that decides what it does, hash it too. The gate
-            // catches two ends on different builds; it cannot catch two ends running the
-            // same build over different text unless it is told.
-            //
-            //     Suite.Data(File.ReadAllText(path));
+            // Every entry is Local, and the URL is the one worth arguing about. Letting a host
+            // impose it would let any server point every guest's client at an address of its
+            // choosing, and Core writes an imposed value into the guest's own cfg - so it
+            // would still be there after they disconnected. A greeting is not worth that.
+            Suite.Local(
+                KvedjaConfig.Enabled,
+                KvedjaConfig.Url,
+                KvedjaConfig.Title,
+                KvedjaConfig.Voice,
+                KvedjaConfig.Delay,
+                KvedjaConfig.Timeout,
+                KvedjaConfig.Repeat,
+                KvedjaConfig.Verbose);
         }
 
         private void OnDestroy()
