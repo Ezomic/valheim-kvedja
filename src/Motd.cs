@@ -106,9 +106,22 @@ namespace Kvedja
                 try { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; }
                 catch { }
 
-                Client.Timeout = TimeSpan.FromSeconds(Mathf.Clamp(KvedjaConfig.Timeout.Value, 1, 60));
+                // A CancellationTokenSource rather than HttpClient.Timeout, and this is not a
+                // style choice. HttpClient refuses a write to Timeout once it has sent a
+                // request, with an InvalidOperationException - so setting it per request on a
+                // client that lives for the process would work the first time and throw on
+                // every login after that. Caught and silent, which is the worst shape: the
+                // message appears once per session of the game and never again, and nothing
+                // says why.
+                int seconds = Mathf.Clamp(KvedjaConfig.Timeout.Value, 1, 60);
 
-                string body = Client.GetStringAsync(url).GetAwaiter().GetResult();
+                string body;
+                using (var cancel = new CancellationTokenSource(TimeSpan.FromSeconds(seconds)))
+                using (HttpResponseMessage answer = Client.GetAsync(url, cancel.Token).GetAwaiter().GetResult())
+                {
+                    answer.EnsureSuccessStatusCode();
+                    body = answer.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                }
 
                 var lines = new List<string>();
                 foreach (string raw in body.Split('\n'))
