@@ -17,28 +17,28 @@ day for any server that wants one, as long as the far end answers plain text.
 
 Settled since 0.1.0 by running it:
 
-- **The request works from inside the game.** The TLS line was copied from Crier, which makes
-  the trip from a dedicated server, and a client is a different process, so it was a guess
-  until the scenario watched a real fetch land.
-- **The timeout is a `CancellationTokenSource`, not `HttpClient.Timeout`.** Setting that
-  property per request throws `InvalidOperationException` the second time, because the first
-  request starts the handler. The first login of a session would have worked and every later
-  one would have failed looking like a network fault.
-- **The line arrives under its title.** `kvedja-greets-you-in-chat` reads the scrollback for
-  the speaker as well as the address, which tells "the message arrived" apart from "the message
+- The request works from inside the game. The TLS line came from Crier, which makes the trip
+  from a dedicated server, and a client is a different process, so it was a guess until the
+  scenario watched a real fetch land.
+- The timeout is a `CancellationTokenSource`, not `HttpClient.Timeout`. Setting that property
+  per request throws `InvalidOperationException` the second time, because the first request
+  starts the handler. The first login of a session would have worked and every later one would
+  have failed looking like a network fault.
+- The line arrives under its title. `kvedja-greets-you-in-chat` reads the scrollback for the
+  speaker as well as the address, which tells "the message arrived" apart from "the message
   arrived without its name on it".
 
-Two things the scenario does not cover, since a replayed scenario starts after both have
-already happened. Watch them by eye the first time:
+Two things the scenario cannot cover, since a replay starts after both have happened. Watch
+them by eye the first time:
 
-- **Whether the chat window opens by itself.** Adding a line to the buffer does not do it.
-  `Chat.Update` draws the window only while its hide timer is under the delay, and it is the
-  incoming-message path that resets that timer, not `AddString`. Kvedja reaches the timer by
+- Whether the chat window opens by itself. Adding a line to the buffer does not do it.
+  `Chat.Update` draws the window only while its hide timer is under the delay, and the
+  incoming-message path resets that timer, not `AddString`. Kvedja reaches the timer by
   reflection and zeroes it. If that binding is ever wrong the message sits in the scrollback,
   invisible, with everything else reporting success.
-- **Whether four seconds is the right wait.** The first second or two after spawning is the
-  loading screen fading out, and a line printed under it has been said to nobody. The number is
-  a guess at the length of a fade.
+- Whether four seconds is the right wait. The first second or two after spawning is the loading
+  screen fading out, and a line printed under it has been said to nobody. The number is a guess
+  at the length of a fade.
 
 Registers with Core's gate at `Requirement.HostOnly` and marks every setting as yours. A host
 imposing `Url` would point your client at an address of its choosing, and Core writes an
