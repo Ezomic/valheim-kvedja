@@ -1,0 +1,23 @@
+# Kvedja - the message of the day reaches the chat window.
+#
+# The message is said on Player.OnSpawned, which has already happened by the time any scenario
+# can run. So this reads the scrollback rather than waiting for the line to arrive, and a pass
+# means it arrived at some point this session rather than that it arrived on time. The four
+# second delay and the chat window opening itself are not covered here; they are the two
+# things to watch by eye the first time.
+#
+# It also needs the outside world. The site has to be reachable and /admin/motd has to be
+# non-empty, so a failure here is as likely to be the network or an emptied message as it is
+# the mod. That is the honest cost of the text living on the site rather than in the DLL.
+
+# Long enough for a slow fetch to have finished if the scenario is started the moment you land.
+# Kvedja gives up after eight seconds by default, so past that there is nothing still coming.
+wait 9
+
+# The title, which the game draws in orange in front of the line.
+said Longhouse yes
+
+# The address the whole mod exists to put in front of somebody. If this passes and the line
+# above fails, the message is arriving without its speaker; if this fails and the line above
+# passes, somebody has edited the message on the site and dropped the link out of it.
+said thijssensoftware.nl/ideas yes
