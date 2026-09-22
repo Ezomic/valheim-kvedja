@@ -1,7 +1,7 @@
 {
     "name":  "Kvedja",
     "author":  "Robbin Thijssen",
-    "version_number":  "0.1.0",
+    "version_number":  "1.0.0",
     "description":  "A message of the day in the chat window when you log in.",
     "dependencies":  [
                          "denikson-BepInExPack_Valheim-5.4.2350"
