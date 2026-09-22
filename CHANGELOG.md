@@ -10,6 +10,17 @@ prints what it says into the chat window, one line per line, under a name in ora
 stops. It does not repeat, it does not follow you around, and it says nothing at all if the
 site has nothing to say. By default it stays quiet when you respawn after dying.
 
+It also shows the server's own notices in the chat window - who joined, who left, who died -
+when the server asks it to. Those come from Crier, which has always known all three and could
+only ever put them in the top-left corner: **a server cannot write to the chat window at all**,
+because the path that gets there looks the speaker up in the connected-player list and a
+dedicated server has no entry in it. That is the same wall the message of the day is built
+around, so the same mod answers both. Verified in game on 2026-09-22, leaves and deaths.
+
+Nothing appears unless a server sends it, and only the server is listened to: the line is
+checked against the server's own connection before it is shown, or any player could put words
+in everyone else's chat window under the server's name.
+
 **The text is not in the DLL.** It lives on the site and is edited there, so it changes without
 an update to install or a server restart, and the same line reaches you in singleplayer, on
 Longhouse and on somebody else's server. Point `Url` somewhere else and it is a message of the
