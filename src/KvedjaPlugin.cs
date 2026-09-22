@@ -79,6 +79,12 @@ namespace Kvedja
             _harmony = new Harmony(PluginGuid);
             _harmony.PatchAll(typeof(KvedjaPatches));
 
+            // Every patch class needs its own line here, which is the cost of patching named
+            // types rather than the assembly. Merki lost an afternoon to exactly this: a
+            // console command written, compiled, deployed and never patched, so it did not
+            // exist and the failure read as a typo in the caller.
+            _harmony.PatchAll(typeof(Notices));
+
             // The startup line every mod in the suite writes. It is how a log answers "which
             // build of what is actually loaded" without anyone guessing.
             Log.LogInfo(PluginName + " " + PluginVersion + " by " + PluginAuthor + " - ready.");

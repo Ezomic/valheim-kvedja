@@ -196,6 +196,27 @@ namespace Kvedja
         }
 
         /// <summary>
+        /// One line into the chat window, now, from somewhere that is not the message of the
+        /// day - see <see cref="Notices"/>. It wears the same speaker and the same voice,
+        /// because to a player both are the server talking and two names for one source would
+        /// read as two sources.
+        ///
+        /// Dropped rather than queued when there is no chat yet. A notice is about something
+        /// that just happened; holding one until the window exists would show somebody a death
+        /// from before they loaded in, which is worse than not showing it. The message of the
+        /// day queues precisely because it is the opposite - it is about nothing in particular
+        /// and is worth waiting for.
+        /// </summary>
+        internal static void SayNow(string line)
+        {
+            Chat chat = Chat.instance;
+            if (chat == null) return;
+
+            chat.AddString(KvedjaConfig.Title.Value, line, KvedjaConfig.Voice.Value);
+            Show(chat);
+        }
+
+        /// <summary>
         /// Opens the chat window, which adding the line does not do by itself.
         ///
         /// This is the trap in the whole mod. <c>Chat.Update</c> draws the window only while
